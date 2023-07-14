@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.pages.HomePage;
 import com.udacity.jwdnd.course1.cloudstorage.pages.LoginPage;
 import com.udacity.jwdnd.course1.cloudstorage.pages.SignUpPage;
 
@@ -50,6 +51,9 @@ class CloudStorageApplicationTests {
 		driver.get(baseUrl + "/login");
 		assertEquals("Login", driver.getTitle());
 	}
+
+	// TODO provide default user
+	// TODO provide signup + login method
 
 	@Test
 	public void signUpUserAlerts() {
@@ -116,6 +120,29 @@ class CloudStorageApplicationTests {
 
 		assertEquals(baseUrl + "/login?error", driver.getCurrentUrl());
 		assertEquals("Invalid username or password", loginPage.errorMessage().getText());
+	}
+
+	@Test
+	public void successfulLogoutRedirectsToLoginPage() {
+		String firstName = "Homer";
+		String lastName = "Simpson";
+		String username = "simpsonh";
+		String password = "supersafepassword1234";
+
+		driver.get(baseUrl + "/signup");
+
+		SignUpPage signUpPage = new SignUpPage(driver);
+		signUpPage.signUpUser(firstName, lastName, username, password);
+
+		driver.get(baseUrl + "/login");
+
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.loginUser(username, password);
+
+		HomePage homePage = new HomePage(driver);
+		homePage.logoutUser();
+
+		assertEquals(baseUrl + "/login", driver.getCurrentUrl());
 	}
 
 	/**
