@@ -21,10 +21,10 @@ public class SignUpPage {
     @FindBy(id = "buttonSignUp")
     private WebElement signUpButton;
 
-    @FindBy(id = "success-msg")
+    @FindBy(id = "successMsg")
     private WebElement successMessage;
 
-    @FindBy(id = "error-msg")
+    @FindBy(id = "errorMsg")
     private WebElement errorMessage;
 
     public SignUpPage(WebDriver driver) {

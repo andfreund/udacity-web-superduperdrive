@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.pages.LoginPage;
 import com.udacity.jwdnd.course1.cloudstorage.pages.SignUpPage;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -71,6 +72,52 @@ class CloudStorageApplicationTests {
 		assertEquals("User with name " + username + " already exists", signUpPage.errorMessage().getText());
 	}
 
+	@Test
+	public void successfulLoginRedirectsToHome() {
+		String firstName = "Ned";
+		String lastName = "Flanders";
+		String username = "flandersn";
+		String password = "evensaferpassword1234";
+
+		driver.get(baseUrl + "/signup");
+
+		SignUpPage signUpPage = new SignUpPage(driver);
+		signUpPage.signUpUser(firstName, lastName, username, password);
+
+		driver.get(baseUrl + "/login");
+
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.loginUser(username, password);
+
+		assertEquals(baseUrl + "/home", driver.getCurrentUrl());
+	}
+
+	@Test
+	public void failedLoginAlert() {
+		String firstName = "Ned";
+		String lastName = "Flanders";
+		String username = "flandersn";
+		String password = "evensaferpassword1234";
+
+		driver.get(baseUrl + "/signup");
+
+		SignUpPage signUpPage = new SignUpPage(driver);
+		signUpPage.signUpUser(firstName, lastName, username, password);
+
+		driver.get(baseUrl + "/login");
+
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.loginUser(username, "password");
+
+		assertEquals(baseUrl + "/login?error", driver.getCurrentUrl());
+		assertEquals("Invalid username or password", loginPage.errorMessage().getText());
+
+		loginPage.loginUser("simpsonh", password);
+
+		assertEquals(baseUrl + "/login?error", driver.getCurrentUrl());
+		assertEquals("Invalid username or password", loginPage.errorMessage().getText());
+	}
+
 	/**
 	 * PLEASE DO NOT DELETE THIS method.
 	 * Helper method for Udacity-supplied sanity checks.
@@ -113,7 +160,7 @@ class CloudStorageApplicationTests {
 		// You may have to modify the element "success-msg" and the sign-up
 		// success message below depening on the rest of your code.
 		*/
-		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+		Assertions.assertTrue(driver.findElement(By.id("successMsg")).getText().contains("You successfully signed up!"));
 	}
 
 
@@ -138,8 +185,8 @@ class CloudStorageApplicationTests {
 		loginPassword.click();
 		loginPassword.sendKeys(password);
 
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("login-button")));
-		WebElement loginButton = driver.findElement(By.id("login-button"));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginButton")));
+		WebElement loginButton = driver.findElement(By.id("loginButton"));
 		loginButton.click();
 
 		webDriverWait.until(ExpectedConditions.titleContains("Home"));
