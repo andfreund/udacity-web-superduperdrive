@@ -24,7 +24,10 @@ public class HomeController {
     }
 
     @GetMapping
-    public String viewPage() {
+    public String viewPage(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+        model.addAttribute("notes", noteService.getNotesFor(user));
         return "home";
     }
 
@@ -42,6 +45,8 @@ public class HomeController {
             model.addAttribute("noteCreationError", false);
             model.addAttribute("noteCreationSuccess", true);
         }
+
+        model.addAttribute("notes", noteService.getNotesFor(user));
 
         return "home";
     }
