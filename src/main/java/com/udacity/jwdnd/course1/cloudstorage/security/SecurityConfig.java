@@ -23,11 +23,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // TODO adjust login page and default redirect
-        http.authorizeRequests().antMatchers("/signup", "/css/**", "/js/**").permitAll()
-                .anyRequest().authenticated();
-
-        http.formLogin().loginPage("/login").permitAll();
-        http.formLogin().defaultSuccessUrl("/home", true);
+        http
+            .authorizeRequests()
+                .antMatchers("/signup", "/css/**", "/js/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+            .and()
+                .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .defaultSuccessUrl("/home")
+                .failureUrl("/login?error");
     }
 }

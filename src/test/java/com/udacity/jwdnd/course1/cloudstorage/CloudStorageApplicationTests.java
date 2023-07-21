@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.data.TestUser;
 import com.udacity.jwdnd.course1.cloudstorage.pages.HomePage;
 import com.udacity.jwdnd.course1.cloudstorage.pages.LoginPage;
 import com.udacity.jwdnd.course1.cloudstorage.pages.SignUpPage;
@@ -21,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
+	private static final TestUser DEFAULT_USER = new TestUser();
+	private static boolean defaultUserExists;
 
 	@LocalServerPort
 	private int port;
@@ -28,15 +31,27 @@ class CloudStorageApplicationTests {
 	private WebDriver driver;
 	private String baseUrl;
 
+	private void createDefaultUser() {
+		SignUpPage signUpPage = new SignUpPage(driver, port);
+		signUpPage.signUpUser(DEFAULT_USER);
+		defaultUserExists = true;
+	}
+
 	@BeforeAll
 	static void beforeAll() {
 		WebDriverManager.chromedriver().setup();
+		defaultUserExists = false;
 	}
 
 	@BeforeEach
 	public void beforeEach() {
 		this.driver = new ChromeDriver();
 		baseUrl = "http://localhost:" + port;
+
+		// create a default user exactly once, simplifies the tests
+		if (!defaultUserExists) {
+			createDefaultUser();
+		}
 	}
 
 	@AfterEach
@@ -52,97 +67,64 @@ class CloudStorageApplicationTests {
 		assertEquals("Login", driver.getTitle());
 	}
 
-	// TODO provide default user
-	// TODO provide signup + login method
-
 	@Test
-	public void signUpUserAlerts() {
-		String firstName = "Homer";
-		String lastName = "Simpson";
-		String username = "simpsonh";
-		String password = "supersafepassword1234";
-
-		driver.get(baseUrl + "/signup");
-
-		SignUpPage signUpPage = new SignUpPage(driver);
-		signUpPage.signUpUser(firstName, lastName, username, password);
-
-		assertTrue(signUpPage.successMessage().isDisplayed());
-		assertEquals("You successfully signed up! Please continue to the login page.", signUpPage.successMessage().getText());
-
-		signUpPage.signUpUser(firstName, lastName, username, password);
-
-		assertTrue(signUpPage.errorMessage().isDisplayed());
-		assertEquals("User with name " + username + " already exists", signUpPage.errorMessage().getText());
-	}
-
-	@Test
-	public void successfulLoginRedirectsToHome() {
-		String firstName = "Ned";
-		String lastName = "Flanders";
-		String username = "flandersn";
-		String password = "evensaferpassword1234";
-
-		driver.get(baseUrl + "/signup");
-
-		SignUpPage signUpPage = new SignUpPage(driver);
-		signUpPage.signUpUser(firstName, lastName, username, password);
-
-		driver.get(baseUrl + "/login");
-
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.loginUser(username, password);
+	public void loginRedirectsToHome() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
 
 		assertEquals(baseUrl + "/home", driver.getCurrentUrl());
 	}
 
 	@Test
+	public void signUpUserAlert() {
+		TestUser user = new TestUser("userone");
+		SignUpPage signUpPage = new SignUpPage(driver, port);
+		signUpPage.signUpUser(user);
+
+		LoginPage loginPage = new LoginPage(driver, port);
+		assertTrue(loginPage.signUpSuccessMessage().isDisplayed());
+		assertEquals("You successfully signed up!", loginPage.signUpSuccessMessage().getText());
+	}
+
+	@Test
+	public void signUpUserFailedAlert() {
+		SignUpPage signUpPage = new SignUpPage(driver, port);
+		signUpPage.signUpUser(DEFAULT_USER);
+
+		assertTrue(signUpPage.errorMessage().isDisplayed());
+		assertEquals("User with name " + DEFAULT_USER.username() + " already exists", signUpPage.errorMessage().getText());
+	}
+
+	@Test
 	public void failedLoginAlert() {
-		String firstName = "Ned";
-		String lastName = "Flanders";
-		String username = "flandersn";
-		String password = "evensaferpassword1234";
+		TestUser user = new TestUser("user");
+		SignUpPage signUpPage = new SignUpPage(driver, port);
+		signUpPage.signUpUser(user);
 
-		driver.get(baseUrl + "/signup");
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(user.username(), "wrongpassword");
 
-		SignUpPage signUpPage = new SignUpPage(driver);
-		signUpPage.signUpUser(firstName, lastName, username, password);
-
-		driver.get(baseUrl + "/login");
-
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.loginUser(username, "password");
-
-		assertEquals(baseUrl + "/login?error", driver.getCurrentUrl());
 		assertEquals("Invalid username or password", loginPage.errorMessage().getText());
 
-		loginPage.loginUser("simpsonh", password);
+		loginPage.loginUser("flandersn", user.password());
 
-		assertEquals(baseUrl + "/login?error", driver.getCurrentUrl());
 		assertEquals("Invalid username or password", loginPage.errorMessage().getText());
 	}
 
 	@Test
-	public void successfulLogoutRedirectsToLoginPage() {
-		String firstName = "Homer";
-		String lastName = "Simpson";
-		String username = "simpsonh";
-		String password = "supersafepassword1234";
+	public void logoutRedirectsToLogin() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
 
-		driver.get(baseUrl + "/signup");
-
-		SignUpPage signUpPage = new SignUpPage(driver);
-		signUpPage.signUpUser(firstName, lastName, username, password);
-
-		driver.get(baseUrl + "/login");
-
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.loginUser(username, password);
-
-		HomePage homePage = new HomePage(driver);
+		HomePage homePage = new HomePage(driver, port);
 		homePage.logoutUser();
 
 		assertEquals(baseUrl + "/login", driver.getCurrentUrl());
+	}
+
+	@Test
+	public void addNewNote() {
+
 	}
 
 	/**

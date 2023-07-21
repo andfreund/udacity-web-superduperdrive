@@ -1,11 +1,12 @@
 package com.udacity.jwdnd.course1.cloudstorage.pages;
 
+import com.udacity.jwdnd.course1.cloudstorage.data.TestUser;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class SignUpPage {
+public class SignUpPage extends AbstractPage {
     @FindBy(id = "inputFirstName")
     private WebElement inputFirstName;
 
@@ -21,13 +22,17 @@ public class SignUpPage {
     @FindBy(id = "buttonSignUp")
     private WebElement signUpButton;
 
-    @FindBy(id = "successMsg")
-    private WebElement successMessage;
-
     @FindBy(id = "errorMsg")
     private WebElement errorMessage;
 
-    public SignUpPage(WebDriver driver) {
+    private final String URL;
+
+    public SignUpPage(WebDriver driver, int port) {
+        URL = BASE_URL + ":" + port + "/signup";
+        if (!driver.getCurrentUrl().equals(URL)) {
+            driver.get(URL);
+        }
+
         PageFactory.initElements(driver, this);
     }
 
@@ -35,19 +40,17 @@ public class SignUpPage {
         signUpButton.click();
     }
 
-    public void signUpUser(String firstName, String lastName, String username, String password) {
+    public WebElement errorMessage() { return errorMessage; }
+
+    public void signUpUser(TestUser user) {
         inputFirstName.clear();
-        inputFirstName.sendKeys(firstName);
+        inputFirstName.sendKeys(user.firstName());
         inputLastName.clear();
-        inputLastName.sendKeys(lastName);
+        inputLastName.sendKeys(user.lastName());
         inputUsername.clear();
-        inputUsername.sendKeys(username);
+        inputUsername.sendKeys(user.username());
         inputPassword.clear();
-        inputPassword.sendKeys(password);
+        inputPassword.sendKeys(user.password());
         clickSignUpButton();
     }
-
-    public WebElement successMessage() { return successMessage; }
-
-    public WebElement errorMessage() { return errorMessage; }
 }

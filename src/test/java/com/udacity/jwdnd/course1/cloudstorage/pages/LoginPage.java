@@ -1,11 +1,12 @@
 package com.udacity.jwdnd.course1.cloudstorage.pages;
 
+import com.udacity.jwdnd.course1.cloudstorage.data.TestUser;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class LoginPage {
+public class LoginPage extends AbstractPage {
     @FindBy(id = "inputUsername")
     private WebElement inputUsername;
 
@@ -21,8 +22,26 @@ public class LoginPage {
     @FindBy(id = "loginButton")
     private WebElement loginButton;
 
-    public LoginPage(WebDriver driver) {
+    @FindBy(id = "successMsg")
+    private WebElement signUpSuccessmessage;
+
+    private WebDriver driver;
+    private int port;
+    private final String URL;
+
+    public LoginPage(WebDriver driver, int port) {
+        URL = BASE_URL + ":" + port + "/login";
+        if (!driver.getCurrentUrl().equals(URL)) {
+            driver.get(URL);
+        }
+
         PageFactory.initElements(driver, this);
+        this.driver = driver;
+        this.port = port;
+    }
+
+    public void loginUser(TestUser user) {
+        loginUser(user.username(), user.password());
     }
 
     public void loginUser(String username, String password) {
@@ -36,4 +55,6 @@ public class LoginPage {
     public WebElement errorMessage() { return errorMessage; }
 
     public WebElement logoutMessage() { return logoutMessage; }
+
+    public WebElement signUpSuccessMessage() { return signUpSuccessmessage; }
 }
