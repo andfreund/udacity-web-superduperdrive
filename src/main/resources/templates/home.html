@@ -10,6 +10,12 @@
     </head>
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container">
+            <div class="alert alert-danger" th:if="${noteCreationError}" id="note-error-msg">
+                Error during note creation!
+            </div>
+            <div class="alert alert-dark" th:if="${noteCreationSuccess}" id="note-success-msg">
+                Note successfully created!
+            </div>
             <div id="logoutDiv">
                 <form action="#" method="POST" th:action="@{/logout}">
                     <button type="submit" class="btn btn-secondary float-right" id="logoutButton">Logout</button>

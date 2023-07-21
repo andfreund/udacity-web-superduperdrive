@@ -12,7 +12,9 @@ public class NoteService {
         this.noteMapper = noteMapper;
     }
 
-    public int createNote(Note note) {
+    public int createNote(Note note, User user) {
+        note.setNoteId(null);
+        note.setUserId(user.getUserId());
         return noteMapper.insertNote(note);
     }
 }
