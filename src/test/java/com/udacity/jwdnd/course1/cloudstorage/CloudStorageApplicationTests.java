@@ -123,8 +123,16 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void addNewNote() {
+	public void createNoteAddsTableEntry() {
+		int existingNotes;
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
 
+		HomePage homePage = new HomePage(driver, port);
+		existingNotes = homePage.getNoteEntryCount();
+		homePage.createNewNote("First Note", "Interesting content");
+
+		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
 	}
 
 	/**
