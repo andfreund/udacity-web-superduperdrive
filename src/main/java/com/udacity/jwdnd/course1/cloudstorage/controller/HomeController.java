@@ -26,9 +26,7 @@ public class HomeController {
 
     @GetMapping
     public String viewPage(Model model, Authentication authentication) {
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-        model.addAttribute("notes", noteService.getNotesFor(user));
+        addUserNotesToModel(model, authentication);
         return "home";
     }
 
@@ -42,7 +40,6 @@ public class HomeController {
             noteService.updateNote(note);
         } else {
             // note doesn't exist in DB -> create
-            note.setUserId(user.getUserId());
             int noteId = noteService.createNote(note, user);
 
             if (noteId < 0) {
@@ -60,10 +57,6 @@ public class HomeController {
 
     @GetMapping("/notes/delete/{noteid}")
     public String deleteNote(@PathVariable("noteid") String noteId, Model model, Authentication authentication) {
-        // TODO DRY: display all notes
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-
         if (noteService.deleteNote(Integer.parseInt(noteId)) < 0) {
             model.addAttribute("alertMessage", "Note deletion failed!");
             model.addAttribute("alertError", true);
@@ -72,7 +65,13 @@ public class HomeController {
             model.addAttribute("alertSuccess", true);
         }
 
-        model.addAttribute("notes",  noteService.getNotesFor(user));
+        addUserNotesToModel(model, authentication);
         return "home";
+    }
+
+    private void addUserNotesToModel(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+        model.addAttribute("notes",  noteService.getNotesFor(user));
     }
 }
