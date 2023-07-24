@@ -34,7 +34,8 @@ public class HomeController {
     @GetMapping
     public String viewPage(Model model, Authentication authentication) {
         // TODO add everything to model
-        addUserNotesToModel(model, authentication);
+        setupNotesModel(model, authentication);
+        setupCredentialsModel(model, authentication);
         return "home";
     }
 
@@ -58,8 +59,8 @@ public class HomeController {
                 model.addAttribute("alertSuccess", true);
             }
         }
+        setupNotesModel(model, authentication);
 
-        model.addAttribute("notes", noteService.getNotesFor(user));
         return "home";
     }
 
@@ -72,8 +73,8 @@ public class HomeController {
             model.addAttribute("alertMessage", "Note successfully deleted!");
             model.addAttribute("alertSuccess", true);
         }
+        setupNotesModel(model, authentication);
 
-        addUserNotesToModel(model, authentication);
         return "home";
     }
 
@@ -97,17 +98,13 @@ public class HomeController {
                 model.addAttribute("alertSuccess", true);
             }
         }
+        setupCredentialsModel(model, authentication);
 
-        model.addAttribute("credentials", credentialService.getCredentialsFor(user));
-        model.addAttribute("encryptionService", encryptionService);
         return "home";
     }
 
     @GetMapping("/credentials/delete/{credentialid}")
     public String deleteCredential(@PathVariable("credentialid") String credentialId, Model model, Authentication authentication) {
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-
         if (credentialService.deleteNote(Integer.parseInt(credentialId)) < 0) {
             model.addAttribute("alertMessage", "Credential deletion failed!");
             model.addAttribute("alertError", true);
@@ -115,15 +112,21 @@ public class HomeController {
             model.addAttribute("alertMessage", "Credential successfully deleted!");
             model.addAttribute("alertSuccess", true);
         }
+        setupCredentialsModel(model, authentication);
 
-        model.addAttribute("credentials", credentialService.getCredentialsFor(user));
-        model.addAttribute("encryptionService", encryptionService);
         return "home";
     }
 
-    private void addUserNotesToModel(Model model, Authentication authentication) {
+    private void setupNotesModel(Model model, Authentication authentication) {
         String username = authentication.getName();
         User user = userService.getUser(username);
         model.addAttribute("notes",  noteService.getNotesFor(user));
+    }
+
+    private void setupCredentialsModel(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+        model.addAttribute("credentials", credentialService.getCredentialsFor(user));
+        model.addAttribute("encryptionService", encryptionService);
     }
 }
