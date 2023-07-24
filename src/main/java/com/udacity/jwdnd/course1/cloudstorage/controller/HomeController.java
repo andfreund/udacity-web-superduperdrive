@@ -46,11 +46,11 @@ public class HomeController {
             int noteId = noteService.createNote(note, user);
 
             if (noteId < 0) {
-                model.addAttribute("noteCreationError", true);
-                model.addAttribute("noteCreationSuccess", false);
+                model.addAttribute("alertMessage", "Error during note creation!");
+                model.addAttribute("alertError", true);
             } else {
-                model.addAttribute("noteCreationError", false);
-                model.addAttribute("noteCreationSuccess", true);
+                model.addAttribute("alertMessage", "Note successfully created!");
+                model.addAttribute("alertSuccess", true);
             }
         }
 
@@ -63,7 +63,15 @@ public class HomeController {
         // TODO DRY: display all notes
         String username = authentication.getName();
         User user = userService.getUser(username);
-        noteService.deleteNote(Integer.parseInt(noteId));
+
+        if (noteService.deleteNote(Integer.parseInt(noteId)) < 0) {
+            model.addAttribute("alertMessage", "Note deletion failed!");
+            model.addAttribute("alertError", true);
+        } else {
+            model.addAttribute("alertMessage", "Note successfully deleted!");
+            model.addAttribute("alertSuccess", true);
+        }
+
         model.addAttribute("notes",  noteService.getNotesFor(user));
         return "home";
     }

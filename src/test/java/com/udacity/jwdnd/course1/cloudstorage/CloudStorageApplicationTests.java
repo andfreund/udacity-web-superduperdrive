@@ -185,6 +185,19 @@ class CloudStorageApplicationTests {
 		assertEquals("Also interesting content", homePage.getNoteDescription(existingNotes));
 	}
 
+	@Test
+	public void deleteNoteAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingNotes = homePage.getNoteEntryCount();
+		homePage.createNewNote("First Note", "Interesting content");
+		homePage.deleteNote(existingNotes);
+
+		assertEquals("Note successfully deleted!", homePage.successMessage().getText());
+	}
+
 	/**
 	 * PLEASE DO NOT DELETE THIS method.
 	 * Helper method for Udacity-supplied sanity checks.

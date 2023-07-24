@@ -30,7 +30,7 @@ public class NoteService {
         noteMapper.updateNote(note);
     }
 
-    public void deleteNote(int noteId) {
-        noteMapper.deleteNote(noteId);
+    public int deleteNote(int noteId) {
+        return noteMapper.deleteNote(noteId);
     }
 }

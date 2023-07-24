@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.List;
 
 public class HomePage extends AbstractPage {
-    @FindBy(id = "logoutButton")
+    @FindBy(id = "logout-button")
     private WebElement logoutButton;
 
     @FindBy(id = "nav-notes-tab")
@@ -29,8 +29,14 @@ public class HomePage extends AbstractPage {
     @FindBy(id = "note-save-button")
     private WebElement saveNoteButton;
 
-    @FindBy(id = "userTable")
+    @FindBy(id = "user-table")
     private WebElement notesTable;
+
+    @FindBy(id = "error-alert")
+    private WebElement errorAlert;
+
+    @FindBy(id = "success-alert")
+    private WebElement successAlert;
 
     private final String URL;
 
@@ -133,5 +139,13 @@ public class HomePage extends AbstractPage {
         WebElement deleteButton = cols.get(0).findElement(By.id("note-delete-link"));
 
         deleteButton.click();
+    }
+
+    public WebElement errorMessage() {
+        return successAlert;
+    }
+
+    public WebElement successMessage() {
+        return successAlert;
     }
 }

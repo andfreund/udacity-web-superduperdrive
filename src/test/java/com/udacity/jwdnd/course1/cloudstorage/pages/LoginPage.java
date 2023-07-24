@@ -7,23 +7,23 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class LoginPage extends AbstractPage {
-    @FindBy(id = "inputUsername")
+    @FindBy(id = "input-username")
     private WebElement inputUsername;
 
-    @FindBy(id = "inputPassword")
+    @FindBy(id = "input-password")
     private WebElement inputPassword;
 
-    @FindBy(id = "errorMsg")
-    private WebElement errorMessage;
+    @FindBy(id = "error-alert")
+    private WebElement errorAlert;
 
-    @FindBy(id = "logoutMsg")
-    private WebElement logoutMessage;
+    @FindBy(id = "logout-alert")
+    private WebElement logoutAlert;
 
-    @FindBy(id = "loginButton")
+    @FindBy(id = "login-button")
     private WebElement loginButton;
 
-    @FindBy(id = "successMsg")
-    private WebElement signUpSuccessmessage;
+    @FindBy(id = "success-alert")
+    private WebElement successAlert;
 
     private WebDriver driver;
     private int port;
@@ -52,9 +52,9 @@ public class LoginPage extends AbstractPage {
         loginButton.click();
     }
 
-    public WebElement errorMessage() { return errorMessage; }
+    public WebElement errorMessage() { return errorAlert; }
 
-    public WebElement logoutMessage() { return logoutMessage; }
+    public WebElement logoutMessage() { return logoutAlert; }
 
-    public WebElement signUpSuccessMessage() { return signUpSuccessmessage; }
+    public WebElement signUpSuccessMessage() { return successAlert; }
 }
