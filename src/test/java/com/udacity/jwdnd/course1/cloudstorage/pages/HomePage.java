@@ -17,8 +17,14 @@ public class HomePage extends AbstractPage {
     @FindBy(id = "nav-notes-tab")
     private WebElement notesTab;
 
+    @FindBy(id = "nav-credentials-tab")
+    private WebElement credentialsTab;
+
     @FindBy(id = "note-new-button")
     private WebElement newNoteButton;
+
+    @FindBy(id = "credential-new-button")
+    private WebElement newCredentialButton;
 
     @FindBy(id = "note-title")
     private WebElement noteTitle;
@@ -26,11 +32,26 @@ public class HomePage extends AbstractPage {
     @FindBy(id = "note-description")
     private WebElement noteDescription;
 
+    @FindBy(id = "credential-url")
+    private WebElement credentialUrl;
+
+    @FindBy(id = "credential-username")
+    private WebElement credentialUsername;
+
+    @FindBy(id = "credential-password")
+    private WebElement credentialPassword;
+
     @FindBy(id = "note-save-button")
     private WebElement saveNoteButton;
 
+    @FindBy(id = "credential-save-button")
+    private WebElement saveCredentialButton;
+
     @FindBy(id = "user-table")
     private WebElement notesTable;
+
+    @FindBy(id = "credentials-table")
+    private WebElement credentialsTable;
 
     @FindBy(id = "error-alert")
     private WebElement errorAlert;
@@ -147,5 +168,67 @@ public class HomePage extends AbstractPage {
 
     public WebElement successMessage() {
         return successAlert;
+    }
+
+    public WebElement credentialsTable() { return credentialsTable; }
+
+    public int getCredentialEntryCount() {
+        credentialsTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+
+        WebElement body = credentialsTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+
+        return rows.size();
+    }
+
+    public String getCredentialUrl(int index) {
+        credentialsTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+
+        WebElement body = credentialsTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        WebElement url = rows.get(index).findElement(By.tagName("th"));
+
+        return url.getText();
+    }
+
+    public String getCredentialUsername(int index) {
+        credentialsTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+
+        WebElement body = credentialsTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        WebElement username = rows.get(index).findElements(By.tagName("td")).get(1);
+
+        return username.getText();
+    }
+
+    public String getCredentialPassword(int index) {
+        credentialsTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+
+        WebElement body = credentialsTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        WebElement username = rows.get(index).findElements(By.tagName("td")).get(2);
+
+        return username.getText();
+    }
+
+    public void createCredential(String url, String username, String password) {
+        credentialsTab.click();
+
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+        newCredentialButton.click();
+
+        wait.until(ExpectedConditions.visibilityOf(credentialUrl));
+        credentialUrl.clear();
+        credentialUrl.sendKeys(url);
+        credentialUsername.clear();
+        credentialUsername.sendKeys(username);
+        credentialPassword.clear();
+        credentialPassword.sendKeys(password);
+
+        saveCredentialButton.click();
     }
 }

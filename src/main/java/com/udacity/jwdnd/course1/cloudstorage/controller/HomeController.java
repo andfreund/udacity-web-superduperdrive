@@ -1,8 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.security.core.Authentication;
@@ -18,20 +20,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HomeController {
     private NoteService noteService;
     private UserService userService;
+    private CredentialService credentialService;
 
-    public HomeController(NoteService noteService, UserService userService) {
+    public HomeController(NoteService noteService, UserService userService, CredentialService credentialService) {
         this.noteService = noteService;
         this.userService = userService;
+        this.credentialService = credentialService;
     }
 
     @GetMapping
     public String viewPage(Model model, Authentication authentication) {
+        // TODO add everything to model
         addUserNotesToModel(model, authentication);
         return "home";
     }
 
     @PostMapping("/notes")
-    public String addNote(Note note, Model model, Authentication authentication) {
+    public String addAndUpdateNotes(Note note, Model model, Authentication authentication) {
         String username = authentication.getName();
         User user = userService.getUser(username);
 
@@ -66,6 +71,15 @@ public class HomeController {
         }
 
         addUserNotesToModel(model, authentication);
+        return "home";
+    }
+
+    @PostMapping("/credentials")
+    public String addAndUpdateCredentials(Credential credential, Model model, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+        int credentialId = credentialService.createCredential(credential, user);
+        model.addAttribute("credentials", credentialService.getCredentialsFor(user));
         return "home";
     }
 

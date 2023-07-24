@@ -20,6 +20,7 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.Random.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 	private static final TestUser DEFAULT_USER = new TestUser();
@@ -133,8 +134,8 @@ class CloudStorageApplicationTests {
 		homePage.createNewNote("First Note", "Interesting content");
 
 		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
-		assertEquals("First Note", homePage.getNoteTitle(0));
-		assertEquals("Interesting content", homePage.getNoteDescription(0));
+		assertEquals("First Note", homePage.getNoteTitle(existingNotes));
+		assertEquals("Interesting content", homePage.getNoteDescription(existingNotes));
 	}
 
 	@Test
@@ -196,6 +197,22 @@ class CloudStorageApplicationTests {
 		homePage.deleteNote(existingNotes);
 
 		assertEquals("Note successfully deleted!", homePage.successMessage().getText());
+	}
+
+	@Test
+	public void createSingleCredential() {
+		int existingCredentials;
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+
+		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
+		assertEquals("example.com", homePage.getCredentialUrl(0));
+		assertEquals("root", homePage.getCredentialUsername(0));
+		assertTrue(homePage.getCredentialPassword(0).endsWith("=="));
 	}
 
 	/**
