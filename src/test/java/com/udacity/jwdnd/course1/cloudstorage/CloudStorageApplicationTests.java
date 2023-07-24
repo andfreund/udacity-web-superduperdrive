@@ -24,6 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 	private static final TestUser DEFAULT_USER = new TestUser();
+	private static final String DUMMY_FILENAME_0 = "two-states.png";
+	private static final String DUMMY_FILENAME_1 = "works-doesnt-work.jpg";
+	private static final File DUMMY_FILE_0 = new File(CloudStorageApplicationTests.class.getClassLoader().getResource(DUMMY_FILENAME_0).getFile());
+	private static final File DUMMY_FILE_1 = new File(CloudStorageApplicationTests.class.getClassLoader().getResource(DUMMY_FILENAME_1).getFile());
 	private static boolean defaultUserExists;
 
 	@LocalServerPort
@@ -328,6 +332,33 @@ class CloudStorageApplicationTests {
 		assertEquals("Credential successfully deleted!", homePage.successMessage().getText());
 	}
 
+	@Test
+	public void uploadSingleFile() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+		int existingFiles = homePage.getFileEntryCount();
+
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+
+		assertEquals(existingFiles + 1, homePage.getFileEntryCount());
+		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(existingFiles));
+	}
+
+	@Test
+	public void uploadMultipleFiles() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+		int existingFiles = homePage.getFileEntryCount();
+
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
+
+		assertEquals(existingFiles + 2, homePage.getFileEntryCount());
+		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(existingFiles));
+		assertEquals(DUMMY_FILE_1.getName(), homePage.getFilename(existingFiles+1));
+	}
 
 	/**
 	 * PLEASE DO NOT DELETE THIS method.

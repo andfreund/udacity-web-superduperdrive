@@ -27,23 +27,23 @@
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab">
-                        <form action="#" enctype="multipart/form-data" method="POST">
+                        <form action="#" enctype="multipart/form-data" method="POST" th:action="@{/home/files}">
                             <div class="container">
                                 <div class="row" style="margin: 1em;">
                                     <div class="col-sm-2">
-                                        <label for="fileUpload">Upload a New File:</label>
+                                        <label for="file-upload">Upload a New File:</label>
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="file" class="form-control-file" id="fileUpload" name="fileUpload">
+                                        <input type="file" class="form-control-file" id="file-upload" name="fileUpload">
                                     </div>
                                     <div class="col-sm-4">
-                                        <button type="submit" class="btn btn-dark" id="uploadButton">Upload</button>
+                                        <button type="submit" class="btn btn-dark" id="file-upload-button">Upload</button>
                                     </div>
                                 </div>
                             </div>
                         </form>
                         <div class="table-responsive">
-                            <table class="table table-striped" id="fileTable">
+                            <table class="table table-striped" id="files-table">
                                 <thead>
                                     <tr>
                                         <th style="width: 20%" scope="col"></th>
@@ -51,12 +51,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr th:each="file : ${files}">
                                     <td>
-                                        <a target="_blank" class="btn btn-success">View</a>
-                                        <a  class="btn btn-danger">Delete</a>
+                                        <a target="_blank" class="btn btn-success" id="file-view-button">View</a>
+                                        <a  class="btn btn-danger" id="file-delete-button">Delete</a>
                                     </td>
-                                    <th scope="row">ExampleFile.txt</th>
+                                    <th scope="row" th:text="${file.fileName}">ExampleFile.txt</th>
                                 </tr>
                                 </tbody>
                             </table>

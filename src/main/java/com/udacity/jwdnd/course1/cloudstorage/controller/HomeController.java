@@ -1,20 +1,23 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
-import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
-import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
-import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
-import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import com.udacity.jwdnd.course1.cloudstorage.services.*;
+
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Controller
 @RequestMapping("/home")
@@ -23,12 +26,14 @@ public class HomeController {
     private UserService userService;
     private CredentialService credentialService;
     private EncryptionService encryptionService;
+    private FileService fileService;
 
-    public HomeController(NoteService noteService, UserService userService, CredentialService credentialService, EncryptionService encryptionService) {
+    public HomeController(NoteService noteService, UserService userService, CredentialService credentialService, EncryptionService encryptionService, FileService fileService) {
         this.noteService = noteService;
         this.userService = userService;
         this.credentialService = credentialService;
         this.encryptionService = encryptionService;
+        this.fileService = fileService;
     }
 
     @GetMapping
@@ -113,6 +118,33 @@ public class HomeController {
             model.addAttribute("alertSuccess", true);
         }
         setupCredentialsModel(model, authentication);
+
+        return "home";
+    }
+
+    @PostMapping("/files")
+    public String uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload, Model model, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+
+        byte[] fileData;
+        String fileContentType;
+        String fileName;
+
+        try {
+            InputStream fis = fileUpload.getInputStream();
+            fileData = fis.readAllBytes();
+            fileName = fileUpload.getOriginalFilename();
+            fileContentType = "application/octet-stream";
+            if (fileName != null) {
+                fileContentType = Files.probeContentType(Paths.get(fileName));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Expected creation of uploaded file, but failed", e);
+        }
+
+        fileService.createFile(fileName, fileContentType, fileData, user);
+        model.addAttribute("files", fileService.getFilesFor(user));
 
         return "home";
     }

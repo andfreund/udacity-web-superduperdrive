@@ -20,11 +20,20 @@ public class HomePage extends AbstractPage {
     @FindBy(id = "nav-credentials-tab")
     private WebElement credentialsTab;
 
+    @FindBy(id = "nav-files-tab")
+    private WebElement filesTab;
+
     @FindBy(id = "note-new-button")
     private WebElement newNoteButton;
 
     @FindBy(id = "credential-new-button")
     private WebElement newCredentialButton;
+
+    @FindBy(id = "file-upload-button")
+    private WebElement uploadFileButton;
+
+    @FindBy(id = "file-upload")
+    private WebElement uploadFileDialog;
 
     @FindBy(id = "note-title")
     private WebElement noteTitle;
@@ -52,6 +61,9 @@ public class HomePage extends AbstractPage {
 
     @FindBy(id = "credentials-table")
     private WebElement credentialsTable;
+
+    @FindBy(id = "files-table")
+    private WebElement filesTable;
 
     @FindBy(id = "error-alert")
     private WebElement errorAlert;
@@ -273,5 +285,32 @@ public class HomePage extends AbstractPage {
         WebElement deleteButton = cols.get(0).findElement(By.id("credential-delete-button"));
 
         deleteButton.click();
+    }
+
+    public int getFileEntryCount() {
+        filesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(uploadFileButton));
+
+        WebElement body = filesTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+
+        return rows.size();
+    }
+
+    public void uploadFile(String filename) {
+        filesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(uploadFileButton));
+
+        uploadFileDialog.clear();
+        uploadFileDialog.sendKeys(filename);
+        uploadFileButton.click();
+    }
+
+    public String getFilename(int index) {
+        WebElement body = filesTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        WebElement fileName = rows.get(index).findElement(By.tagName("th"));
+
+        return fileName.getText();
     }
 }
