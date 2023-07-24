@@ -163,7 +163,7 @@ class CloudStorageApplicationTests {
 		int existingNotes = homePage.getNoteEntryCount();
 		homePage.createNewNote("First Note", "Interesting content");
 
-		homePage.editNote(0, "Edited Note", "Edited content");
+		homePage.editNote(existingNotes, "Edited Note", "Edited content");
 		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
 		assertEquals("Edited Note", homePage.getNoteTitle(existingNotes));
 		assertEquals("Edited content", homePage.getNoteDescription(existingNotes));
