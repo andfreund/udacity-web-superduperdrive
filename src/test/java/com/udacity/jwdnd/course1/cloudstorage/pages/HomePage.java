@@ -95,10 +95,30 @@ public class HomePage extends AbstractPage {
         notesTab.click();
         wait.until(ExpectedConditions.visibilityOf(newNoteButton));
 
+        // TODO DRY
         WebElement body = notesTable.findElement(By.tagName("tbody"));
         List<WebElement> rows = body.findElements(By.tagName("tr"));
         List<WebElement> cols = rows.get(index).findElements(By.tagName("td"));
         WebElement description = cols.get(1);
         return description.getText();
+    }
+
+    public void editNote(int index, String newTitle, String newDescription) {
+        notesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newNoteButton));
+
+        // TODO test simple search by id
+        WebElement body = notesTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        List<WebElement> cols = rows.get(index).findElements(By.tagName("td"));
+        WebElement editButton = cols.get(0).findElement(By.id("note-edit-button"));
+
+        editButton.click();
+        wait.until(ExpectedConditions.visibilityOf(noteTitle));
+        noteTitle.clear();
+        noteTitle.sendKeys(newTitle);
+        noteDescription.clear();
+        noteDescription.sendKeys(newDescription);
+        saveNoteButton.click();
     }
 }

@@ -25,4 +25,8 @@ public class NoteService {
         int userId = user.getUserId();
         return noteMapper.getNotesFor(userId);
     }
+
+    public void updateNote(Note note) {
+        noteMapper.updateNote(note);
+    }
 }

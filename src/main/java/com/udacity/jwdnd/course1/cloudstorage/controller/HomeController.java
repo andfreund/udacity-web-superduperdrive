@@ -31,23 +31,29 @@ public class HomeController {
         return "home";
     }
 
-    @PostMapping("/note")
+    @PostMapping("/notes")
     public String addNote(Note note, Model model, Authentication authentication) {
         String username = authentication.getName();
         User user = userService.getUser(username);
 
-        note.setUserId(user.getUserId());
-        int noteId = noteService.createNote(note, user);
-        if (noteId < 0) {
-            model.addAttribute("noteCreationError", true);
-            model.addAttribute("noteCreationSuccess", false);
+        if (note.getNoteId() > 0) {
+            // note already exists in DB -> edit
+            noteService.updateNote(note);
         } else {
-            model.addAttribute("noteCreationError", false);
-            model.addAttribute("noteCreationSuccess", true);
+            // note doesn't exist in DB -> create
+            note.setUserId(user.getUserId());
+            int noteId = noteService.createNote(note, user);
+
+            if (noteId < 0) {
+                model.addAttribute("noteCreationError", true);
+                model.addAttribute("noteCreationSuccess", false);
+            } else {
+                model.addAttribute("noteCreationError", false);
+                model.addAttribute("noteCreationSuccess", true);
+            }
         }
 
         model.addAttribute("notes", noteService.getNotesFor(user));
-
         return "home";
     }
 }
