@@ -156,6 +156,17 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	public void createNoteAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		homePage.createNewNote("First Note", "Interesting content");
+
+		assertEquals("Note successfully created!", homePage.successMessage().getText());
+	}
+
+	@Test
 	public void editNote() {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
@@ -234,6 +245,17 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	public void createCredentialAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		homePage.createCredential("example.com", "root", "123456");
+
+		assertEquals("Credential successfully created!", homePage.successMessage().getText());
+	}
+
+	@Test
 	public void samePasswordHasDifferentEncryptedViews() {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
@@ -275,6 +297,37 @@ class CloudStorageApplicationTests {
 		assertEquals("normaluser", homePage.getCredentialUsername(existingCredentials));
 		assertNotEquals(encryptedPassword, homePage.getCredentialPassword(existingCredentials));
 	}
+
+	@Test
+	public void deleteCredential() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+		homePage.createCredential("duff.com", "duffman", "duffbeer");
+
+		homePage.deleteCredential(existingCredentials);
+		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
+		assertEquals("duff.com", homePage.getCredentialUrl(existingCredentials));
+		assertEquals("duffman", homePage.getCredentialUsername(existingCredentials));
+		assertTrue(homePage.getCredentialPassword(existingCredentials).endsWith("=="));
+	}
+
+	@Test
+	public void deleteCredentialAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+		homePage.deleteCredential(existingCredentials);
+
+		assertEquals("Credential successfully deleted!", homePage.successMessage().getText());
+	}
+
 
 	/**
 	 * PLEASE DO NOT DELETE THIS method.

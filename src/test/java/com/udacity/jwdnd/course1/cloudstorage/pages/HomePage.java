@@ -262,4 +262,16 @@ public class HomePage extends AbstractPage {
         return credentialPassword;
     }
 
+    public void deleteCredential(int index) {
+        credentialsTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+
+        // TODO test simple search by id
+        WebElement body = credentialsTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        List<WebElement> cols = rows.get(index).findElements(By.tagName("td"));
+        WebElement deleteButton = cols.get(0).findElement(By.id("credential-delete-button"));
+
+        deleteButton.click();
+    }
 }

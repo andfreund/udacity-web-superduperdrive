@@ -52,4 +52,8 @@ public class CredentialService {
 
         credentialMapper.updateCredential(credential);
     }
+
+    public int deleteNote(int credentialId) {
+        return credentialMapper.deleteCredential(credentialId);
+    }
 }

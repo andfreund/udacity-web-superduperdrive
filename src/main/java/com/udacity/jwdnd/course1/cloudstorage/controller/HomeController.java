@@ -51,7 +51,7 @@ public class HomeController {
             int noteId = noteService.createNote(note, user);
 
             if (noteId < 0) {
-                model.addAttribute("alertMessage", "Error during note creation!");
+                model.addAttribute("alertMessage", "Note creation failed!");
                 model.addAttribute("alertError", true);
             } else {
                 model.addAttribute("alertMessage", "Note successfully created!");
@@ -88,6 +88,32 @@ public class HomeController {
         } else {
             // credential doesn't exist in Db -> create
             int credentialId = credentialService.createCredential(credential, user);
+
+            if (credentialId < 0) {
+                model.addAttribute("alertMessage", "Credential creation failed!");
+                model.addAttribute("alertError", true);
+            } else {
+                model.addAttribute("alertMessage", "Credential successfully created!");
+                model.addAttribute("alertSuccess", true);
+            }
+        }
+
+        model.addAttribute("credentials", credentialService.getCredentialsFor(user));
+        model.addAttribute("encryptionService", encryptionService);
+        return "home";
+    }
+
+    @GetMapping("/credentials/delete/{credentialid}")
+    public String deleteCredential(@PathVariable("credentialid") String credentialId, Model model, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+
+        if (credentialService.deleteNote(Integer.parseInt(credentialId)) < 0) {
+            model.addAttribute("alertMessage", "Credential deletion failed!");
+            model.addAttribute("alertError", true);
+        } else {
+            model.addAttribute("alertMessage", "Credential successfully deleted!");
+            model.addAttribute("alertSuccess", true);
         }
 
         model.addAttribute("credentials", credentialService.getCredentialsFor(user));
