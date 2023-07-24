@@ -228,7 +228,38 @@ public class HomePage extends AbstractPage {
         credentialUsername.sendKeys(username);
         credentialPassword.clear();
         credentialPassword.sendKeys(password);
-
         saveCredentialButton.click();
     }
+
+    public void editCredential(int index, String newUrl, String newUsername, String newPassword) {
+        credentialsTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+
+        editCredentialButton(index).click();
+        wait.until(ExpectedConditions.visibilityOf(credentialUrl));
+        credentialUrl.clear();
+        credentialUrl.sendKeys(newUrl);
+        credentialUsername.clear();
+        credentialUsername.sendKeys(newUsername);
+        credentialPassword.clear();
+        credentialPassword.sendKeys(newPassword);
+        saveCredentialButton.click();
+    }
+
+    public WebElement editCredentialButton(int index) {
+        credentialsTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newCredentialButton));
+
+        WebElement body = credentialsTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        List<WebElement> cols = rows.get(index).findElements(By.tagName("td"));
+        WebElement editButton = cols.get(0).findElement(By.id("credential-edit-button"));
+
+        return editButton;
+    }
+
+    public WebElement credentialPassword() {
+        return credentialPassword;
+    }
+
 }

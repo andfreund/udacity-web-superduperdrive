@@ -26,7 +26,8 @@ public class NoteService {
         return noteMapper.getNotesFor(userId);
     }
 
-    public void updateNote(Note note) {
+    public void updateNote(Note note, User user) {
+        note.setUserId(user.getUserId());
         noteMapper.updateNote(note);
     }
 

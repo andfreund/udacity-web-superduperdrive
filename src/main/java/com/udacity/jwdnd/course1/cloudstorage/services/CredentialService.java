@@ -38,4 +38,18 @@ public class CredentialService {
         int userId = user.getUserId();
         return credentialMapper.getCredentialsFor(userId);
     }
+
+    public void updateCredential(Credential credential, User user) {
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
+
+        credential.setKey(encodedKey);
+        credential.setPassword(encryptedPassword);
+        credential.setUserId(user.getUserId());
+
+        credentialMapper.updateCredential(credential);
+    }
 }

@@ -139,7 +139,7 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void createMultipleNotesWithCorrectContent() {
+	public void createMultipleNotes() {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
 
@@ -201,18 +201,79 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void createSingleCredential() {
-		int existingCredentials;
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
 
 		HomePage homePage = new HomePage(driver, port);
-		existingCredentials = homePage.getCredentialEntryCount();
+		int existingCredentials = homePage.getCredentialEntryCount();
 		homePage.createCredential("example.com", "root", "123456");
 
 		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
 		assertEquals("example.com", homePage.getCredentialUrl(0));
 		assertEquals("root", homePage.getCredentialUsername(0));
 		assertTrue(homePage.getCredentialPassword(0).endsWith("=="));
+	}
+
+	@Test
+	public void createMultipleCredentials() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+		homePage.createCredential("duff.com", "duffman", "duffbeer");
+
+		assertEquals(existingCredentials + 2, homePage.getCredentialEntryCount());
+		assertEquals("example.com", homePage.getCredentialUrl(existingCredentials));
+		assertEquals("root", homePage.getCredentialUsername(existingCredentials));
+		assertTrue(homePage.getCredentialPassword(existingCredentials).endsWith("=="));
+		assertEquals("duff.com", homePage.getCredentialUrl(existingCredentials+1));
+		assertEquals("duffman", homePage.getCredentialUsername(existingCredentials+1));
+		assertTrue(homePage.getCredentialPassword(existingCredentials+1).endsWith("=="));
+	}
+
+	@Test
+	public void samePasswordHasDifferentEncryptedViews() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+		homePage.createCredential("duff.com", "duffman", "123456");
+
+		assertNotEquals(homePage.getCredentialPassword(existingCredentials), homePage.getCredentialPassword(existingCredentials+1));
+	}
+
+	@Test
+	public void viewCredentialShowsPlainPassword() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+
+		homePage.editCredentialButton(existingCredentials).click();
+		assertEquals("123456", homePage.credentialPassword().getAttribute("value"));
+	}
+
+	@Test
+	public void editCredential() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+		String encryptedPassword = homePage.getCredentialPassword(existingCredentials);
+
+		homePage.editCredential(existingCredentials, "anotherurl.com", "normaluser", "security1o1");
+		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
+		assertEquals("anotherurl.com", homePage.getCredentialUrl(existingCredentials));
+		assertEquals("normaluser", homePage.getCredentialUsername(existingCredentials));
+		assertNotEquals(encryptedPassword, homePage.getCredentialPassword(existingCredentials));
 	}
 
 	/**

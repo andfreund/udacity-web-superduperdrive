@@ -5,6 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
+import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.security.core.Authentication;
@@ -21,11 +22,13 @@ public class HomeController {
     private NoteService noteService;
     private UserService userService;
     private CredentialService credentialService;
+    private EncryptionService encryptionService;
 
-    public HomeController(NoteService noteService, UserService userService, CredentialService credentialService) {
+    public HomeController(NoteService noteService, UserService userService, CredentialService credentialService, EncryptionService encryptionService) {
         this.noteService = noteService;
         this.userService = userService;
         this.credentialService = credentialService;
+        this.encryptionService = encryptionService;
     }
 
     @GetMapping
@@ -42,7 +45,7 @@ public class HomeController {
 
         if (note.getNoteId() > 0) {
             // note already exists in DB -> edit
-            noteService.updateNote(note);
+            noteService.updateNote(note, user);
         } else {
             // note doesn't exist in DB -> create
             int noteId = noteService.createNote(note, user);
@@ -78,8 +81,17 @@ public class HomeController {
     public String addAndUpdateCredentials(Credential credential, Model model, Authentication authentication) {
         String username = authentication.getName();
         User user = userService.getUser(username);
-        int credentialId = credentialService.createCredential(credential, user);
+
+        if (credential.getCredentialId() > 0) {
+            // credential already exists in DB -> edit/view
+            credentialService.updateCredential(credential, user);
+        } else {
+            // credential doesn't exist in Db -> create
+            int credentialId = credentialService.createCredential(credential, user);
+        }
+
         model.addAttribute("credentials", credentialService.getCredentialsFor(user));
+        model.addAttribute("encryptionService", encryptionService);
         return "home";
     }
 
