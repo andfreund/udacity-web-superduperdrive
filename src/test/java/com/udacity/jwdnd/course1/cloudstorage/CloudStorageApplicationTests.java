@@ -123,7 +123,7 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void createNoteAddsTableEntry() {
+	public void createSingleNote() {
 		int existingNotes;
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
@@ -133,6 +133,44 @@ class CloudStorageApplicationTests {
 		homePage.createNewNote("First Note", "Interesting content");
 
 		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
+		assertEquals("First Note", homePage.getNoteTitle(0));
+		assertEquals("Interesting content", homePage.getNoteDescription(0));
+	}
+
+	@Test
+	public void createMultipleNotesWithCorrectContent() {
+		int existingNotes;
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		existingNotes = homePage.getNoteEntryCount();
+		homePage.createNewNote("First Note", "Interesting content");
+		homePage.createNewNote("Second Note", "Also interesting content");
+
+		assertEquals(existingNotes + 2, homePage.getNoteEntryCount());
+		assertEquals("First Note", homePage.getNoteTitle(existingNotes));
+		assertEquals("Interesting content", homePage.getNoteDescription(existingNotes));
+		assertEquals("Second Note", homePage.getNoteTitle(existingNotes+1));
+		assertEquals("Also interesting content", homePage.getNoteDescription(existingNotes+1));
+	}
+
+//	@Test
+//	public void editNote() {
+//		LoginPage loginPage = new LoginPage(driver, port);
+//		loginPage.loginUser(DEFAULT_USER);
+//
+//		HomePage homePage = new HomePage(driver, port);
+//		homePage.createNewNote("First Note", "Interesting content");
+//
+//		homePage.editNote(0, "First Note changed", "Interesting content changed");
+//		assertEquals("First Note changed", homePage.getNoteTitle(0));
+//		assertEquals("Interesting content changed", homePage.getNoteDescription(0));
+//	}
+
+	@Test
+	public void deleteNote() {
+
 	}
 
 	/**

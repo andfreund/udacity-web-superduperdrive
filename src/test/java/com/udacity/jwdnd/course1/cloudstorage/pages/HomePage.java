@@ -79,4 +79,26 @@ public class HomePage extends AbstractPage {
 
         return rows.size();
     }
+
+    public String getNoteTitle(int index) {
+        notesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newNoteButton));
+
+        WebElement body = notesTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        WebElement title = rows.get(index).findElement(By.tagName("th"));
+
+        return title.getText();
+    }
+
+    public String getNoteDescription(int index) {
+        notesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(newNoteButton));
+
+        WebElement body = notesTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        List<WebElement> cols = rows.get(index).findElements(By.tagName("td"));
+        WebElement description = cols.get(1);
+        return description.getText();
+    }
 }
