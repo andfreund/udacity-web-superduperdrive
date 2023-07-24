@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -54,6 +55,16 @@ public class HomeController {
         }
 
         model.addAttribute("notes", noteService.getNotesFor(user));
+        return "home";
+    }
+
+    @GetMapping("/notes/delete/{noteid}")
+    public String deleteNote(@PathVariable("noteid") String noteId, Model model, Authentication authentication) {
+        // TODO DRY: display all notes
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+        noteService.deleteNote(Integer.parseInt(noteId));
+        model.addAttribute("notes",  noteService.getNotesFor(user));
         return "home";
     }
 }

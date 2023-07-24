@@ -171,7 +171,18 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void deleteNote() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
 
+		HomePage homePage = new HomePage(driver, port);
+		int existingNotes = homePage.getNoteEntryCount();
+		homePage.createNewNote("First Note", "Interesting content");
+		homePage.createNewNote("Second Note", "Also interesting content");
+
+		homePage.deleteNote(existingNotes);
+		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
+		assertEquals("Second Note", homePage.getNoteTitle(existingNotes));
+		assertEquals("Also interesting content", homePage.getNoteDescription(existingNotes));
 	}
 
 	/**
