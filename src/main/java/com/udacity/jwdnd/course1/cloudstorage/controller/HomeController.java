@@ -1,10 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
-import com.udacity.jwdnd.course1.cloudstorage.model.File;
-import com.udacity.jwdnd.course1.cloudstorage.model.Note;
-
-import com.udacity.jwdnd.course1.cloudstorage.model.User;
+import com.udacity.jwdnd.course1.cloudstorage.model.*;
 import com.udacity.jwdnd.course1.cloudstorage.services.*;
 
 import org.springframework.core.io.ByteArrayResource;
@@ -19,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -43,9 +38,9 @@ public class HomeController {
 
     @GetMapping
     public String viewPage(Model model, Authentication authentication) {
-        // TODO add everything to model
         setupNotesModel(model, authentication);
         setupCredentialsModel(model, authentication);
+        setupFilesModel(model, authentication);
         return "home";
     }
 
@@ -84,7 +79,6 @@ public class HomeController {
             model.addAttribute("alertSuccess", true);
         }
         setupNotesModel(model, authentication);
-
         return "home";
     }
 
@@ -123,12 +117,12 @@ public class HomeController {
             model.addAttribute("alertSuccess", true);
         }
         setupCredentialsModel(model, authentication);
-
         return "home";
     }
 
     @PostMapping("/files")
     public String uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload, Model model, Authentication authentication) {
+        // TODO verify file size -> error alert if too big
         String username = authentication.getName();
         User user = userService.getUser(username);
 
@@ -163,17 +157,15 @@ public class HomeController {
             model.addAttribute("alertMessage", "File upload failed!");
             model.addAttribute("alertError", true);
         }
-
         model.addAttribute("files", fileService.getFilesFor(user));
+
         return "home";
     }
 
     @GetMapping("/files/view/{fileid}")
     public ResponseEntity<ByteArrayResource> viewFile(@PathVariable("fileid") String fileId, Model model, Authentication authentication) {
-        String username = authentication.getName();
-        User user = userService.getUser(username);
+        setupFilesModel(model, authentication);
         File file = fileService.getFile(Integer.parseInt(fileId));
-        model.addAttribute("files", fileService.getFilesFor(user));
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(file.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
@@ -182,9 +174,6 @@ public class HomeController {
 
     @GetMapping("/files/delete/{fileid}")
     public String deleteFile(@PathVariable("fileid") String fileId, Model model, Authentication authentication) {
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-
         if (fileService.deleteFile(Integer.parseInt(fileId)) < 0) {
             model.addAttribute("alertMessage", "File deletion failed!");
             model.addAttribute("alertError", true);
@@ -192,8 +181,7 @@ public class HomeController {
             model.addAttribute("alertMessage", "File successfully deleted!");
             model.addAttribute("alertSuccess", true);
         }
-
-        model.addAttribute("files", fileService.getFilesFor(user));
+        setupFilesModel(model, authentication);
         return "home";
     }
 
@@ -208,5 +196,11 @@ public class HomeController {
         User user = userService.getUser(username);
         model.addAttribute("credentials", credentialService.getCredentialsFor(user));
         model.addAttribute("encryptionService", encryptionService);
+    }
+
+    private void setupFilesModel(Model model, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.getUser(username);
+        model.addAttribute("files", fileService.getFilesFor(user));
     }
 }

@@ -224,9 +224,9 @@ class CloudStorageApplicationTests {
 		homePage.createCredential("example.com", "root", "123456");
 
 		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
-		assertEquals("example.com", homePage.getCredentialUrl(0));
-		assertEquals("root", homePage.getCredentialUsername(0));
-		assertTrue(homePage.getCredentialPassword(0).endsWith("=="));
+		assertEquals("example.com", homePage.getCredentialUrl(existingCredentials));
+		assertEquals("root", homePage.getCredentialUsername(existingCredentials));
+		assertTrue(homePage.getCredentialPassword(existingCredentials).endsWith("=="));
 	}
 
 	@Test
@@ -337,26 +337,12 @@ class CloudStorageApplicationTests {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
 		HomePage homePage = new HomePage(driver, port);
-		int existingFiles = homePage.getFileEntryCount();
+		homePage.deleteAllFiles();
 
 		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
 
-		assertEquals(existingFiles + 1, homePage.getFileEntryCount());
-		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(existingFiles));
-	}
-
-	@Test
-	public void uploadSingleFileAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
-		int existingFiles = homePage.getFileEntryCount();
-
-		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
-		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
-
-		assertEquals(existingFiles + 1, homePage.getFileEntryCount());
-		assertEquals("File already exists!", homePage.errorMessage().getText());
+		assertEquals(1, homePage.getFileEntryCount());
+		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(0));
 	}
 
 	@Test
@@ -364,10 +350,13 @@ class CloudStorageApplicationTests {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
 		HomePage homePage = new HomePage(driver, port);
+		homePage.deleteAllFiles();
 
-		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
+		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
 
-		assertEquals("File successfully uploaded!", homePage.successMessage().getText());
+		assertEquals(1, homePage.getFileEntryCount());
+		assertEquals("File already exists!", homePage.errorMessage().getText());
 	}
 
 	@Test
@@ -375,28 +364,14 @@ class CloudStorageApplicationTests {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
 		HomePage homePage = new HomePage(driver, port);
-		int existingFiles = homePage.getFileEntryCount();
+		homePage.deleteAllFiles();
 
 		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
 		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
 
-		assertEquals(existingFiles + 2, homePage.getFileEntryCount());
-		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(existingFiles));
-		assertEquals(DUMMY_FILE_1.getName(), homePage.getFilename(existingFiles+1));
-	}
-
-	@Test
-	public void deleteFileAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
-		int existingFiles = homePage.getFileEntryCount();
-
-		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
-		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
-		homePage.deleteFile(existingFiles + 1);
-
-		assertEquals("File successfully deleted!", homePage.successMessage().getText());
+		assertEquals(2, homePage.getFileEntryCount());
+		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(0));
+		assertEquals(DUMMY_FILE_1.getName(), homePage.getFilename(1));
 	}
 
 	@Test
@@ -404,14 +379,28 @@ class CloudStorageApplicationTests {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
 		HomePage homePage = new HomePage(driver, port);
-		int existingFiles = homePage.getFileEntryCount();
+		homePage.deleteAllFiles();
 
 		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
 		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
-		homePage.deleteFile(existingFiles + 1);
+		homePage.deleteFile(1);
 
-		assertEquals(existingFiles + 1, homePage.getFileEntryCount());
-		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(existingFiles));
+		assertEquals(1, homePage.getFileEntryCount());
+		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(0));
+	}
+
+	@Test
+	public void deleteFileAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+		homePage.deleteAllFiles();
+
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
+		homePage.deleteFile(1);
+
+		assertEquals("File successfully deleted!", homePage.successMessage().getText());
 	}
 
 	/**
@@ -471,18 +460,18 @@ class CloudStorageApplicationTests {
 		driver.get("http://localhost:" + this.port + "/login");
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("inputUsername")));
-		WebElement loginUserName = driver.findElement(By.id("inputUsername"));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-username")));
+		WebElement loginUserName = driver.findElement(By.id("input-username"));
 		loginUserName.click();
 		loginUserName.sendKeys(userName);
 
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("inputPassword")));
-		WebElement loginPassword = driver.findElement(By.id("inputPassword"));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-password")));
+		WebElement loginPassword = driver.findElement(By.id("input-password"));
 		loginPassword.click();
 		loginPassword.sendKeys(password);
 
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginButton")));
-		WebElement loginButton = driver.findElement(By.id("loginButton"));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("login-button")));
+		WebElement loginButton = driver.findElement(By.id("login-button"));
 		loginButton.click();
 
 		webDriverWait.until(ExpectedConditions.titleContains("Home"));
@@ -555,11 +544,11 @@ class CloudStorageApplicationTests {
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 		String fileName = "upload5m.zip";
 
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fileUpload")));
-		WebElement fileSelectButton = driver.findElement(By.id("fileUpload"));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("file-upload")));
+		WebElement fileSelectButton = driver.findElement(By.id("file-upload"));
 		fileSelectButton.sendKeys(new File(fileName).getAbsolutePath());
 
-		WebElement uploadButton = driver.findElement(By.id("uploadButton"));
+		WebElement uploadButton = driver.findElement(By.id("file-upload-button"));
 		uploadButton.click();
 		try {
 			webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.id("success")));

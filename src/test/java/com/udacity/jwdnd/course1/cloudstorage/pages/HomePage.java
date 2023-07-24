@@ -327,4 +327,10 @@ public class HomePage extends AbstractPage {
 
         deleteButton.click();
     }
+
+    public void deleteAllFiles() {
+        for (int i = 0; i < getFileEntryCount(); i++) {
+            deleteFile(i);
+        }
+    }
 }
