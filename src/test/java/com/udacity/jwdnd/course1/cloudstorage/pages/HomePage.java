@@ -175,7 +175,7 @@ public class HomePage extends AbstractPage {
     }
 
     public WebElement errorMessage() {
-        return successAlert;
+        return errorAlert;
     }
 
     public WebElement successMessage() {
@@ -307,10 +307,24 @@ public class HomePage extends AbstractPage {
     }
 
     public String getFilename(int index) {
+        filesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(uploadFileButton));
+
         WebElement body = filesTable.findElement(By.tagName("tbody"));
         List<WebElement> rows = body.findElements(By.tagName("tr"));
         WebElement fileName = rows.get(index).findElement(By.tagName("th"));
 
         return fileName.getText();
+    }
+
+    public void deleteFile(int index) {
+        filesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(uploadFileButton));
+
+        WebElement body = filesTable.findElement(By.tagName("tbody"));
+        List<WebElement> rows = body.findElements(By.tagName("tr"));
+        WebElement deleteButton = rows.get(index).findElement(By.id("file-delete-button"));
+
+        deleteButton.click();
     }
 }

@@ -22,4 +22,16 @@ public class FileService {
     public List<File> getFilesFor(User user) {
         return fileMapper.getFilesFor(user.getUserId());
     }
+
+    public File getFile(int fileId) {
+        return fileMapper.getFile(fileId);
+    }
+
+    public boolean fileExists(String fileName) {
+        return fileMapper.getFileByName(fileName) != null;
+    }
+
+    public int deleteFile(int fileId) {
+        return fileMapper.deleteFile(fileId);
+    }
 }

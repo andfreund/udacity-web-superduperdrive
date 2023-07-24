@@ -346,6 +346,31 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	public void uploadSingleFileAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+		int existingFiles = homePage.getFileEntryCount();
+
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+
+		assertEquals(existingFiles + 1, homePage.getFileEntryCount());
+		assertEquals("File already exists!", homePage.errorMessage().getText());
+	}
+
+	@Test
+	public void uploadSameFileAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+
+		assertEquals("File successfully uploaded!", homePage.successMessage().getText());
+	}
+
+	@Test
 	public void uploadMultipleFiles() {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
@@ -358,6 +383,35 @@ class CloudStorageApplicationTests {
 		assertEquals(existingFiles + 2, homePage.getFileEntryCount());
 		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(existingFiles));
 		assertEquals(DUMMY_FILE_1.getName(), homePage.getFilename(existingFiles+1));
+	}
+
+	@Test
+	public void deleteFileAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+		int existingFiles = homePage.getFileEntryCount();
+
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
+		homePage.deleteFile(existingFiles + 1);
+
+		assertEquals("File successfully deleted!", homePage.successMessage().getText());
+	}
+
+	@Test
+	public void deleteFile() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+		int existingFiles = homePage.getFileEntryCount();
+
+		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
+		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
+		homePage.deleteFile(existingFiles + 1);
+
+		assertEquals(existingFiles + 1, homePage.getFileEntryCount());
+		assertEquals(DUMMY_FILE_0.getName(), homePage.getFilename(existingFiles));
 	}
 
 	/**
