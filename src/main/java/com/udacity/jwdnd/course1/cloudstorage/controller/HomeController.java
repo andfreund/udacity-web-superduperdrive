@@ -70,8 +70,8 @@ public class HomeController {
                 model.addAttribute("alertSuccess", true);
             }
         }
-        setupNotesModel(model, authentication);
 
+        setupNotesModel(model, authentication);
         return "home";
     }
 
@@ -84,6 +84,7 @@ public class HomeController {
             model.addAttribute("alertMessage", "Note successfully deleted!");
             model.addAttribute("alertSuccess", true);
         }
+
         setupNotesModel(model, authentication);
         return "home";
     }
@@ -114,8 +115,8 @@ public class HomeController {
                 model.addAttribute("alertSuccess", true);
             }
         }
-        setupCredentialsModel(model, authentication);
 
+        setupCredentialsModel(model, authentication);
         return "home";
     }
 
@@ -128,6 +129,7 @@ public class HomeController {
             model.addAttribute("alertMessage", "Credential successfully deleted!");
             model.addAttribute("alertSuccess", true);
         }
+
         setupCredentialsModel(model, authentication);
         return "home";
     }
@@ -169,8 +171,8 @@ public class HomeController {
             model.addAttribute("alertMessage", "File upload failed!");
             model.addAttribute("alertError", true);
         }
-        model.addAttribute("files", fileService.getFilesFor(user));
 
+        model.addAttribute("files", fileService.getFilesFor(user));
         return "home";
     }
 

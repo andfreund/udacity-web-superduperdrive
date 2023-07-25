@@ -42,6 +42,12 @@ class CloudStorageApplicationTests {
 		defaultUserExists = true;
 	}
 
+	private HomePage navigateToHomePageAs(TestUser user) {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(user);
+		return new HomePage(driver, port);
+	}
+
 	@BeforeAll
 	static void beforeAll() {
 		WebDriverManager.chromedriver().setup();
@@ -76,7 +82,6 @@ class CloudStorageApplicationTests {
 	public void loginRedirectsToHome() {
 		LoginPage loginPage = new LoginPage(driver, port);
 		loginPage.loginUser(DEFAULT_USER);
-
 		assertEquals(baseUrl + "/home", driver.getCurrentUrl());
 	}
 
@@ -90,6 +95,7 @@ class CloudStorageApplicationTests {
 	public void signUpUserAlert() {
 		TestUser user = new TestUser("userone");
 		SignUpPage signUpPage = new SignUpPage(driver, port);
+
 		signUpPage.signUpUser(user);
 
 		LoginPage loginPage = new LoginPage(driver, port);
@@ -100,6 +106,7 @@ class CloudStorageApplicationTests {
 	@Test
 	public void signUpUserFailedAlert() {
 		SignUpPage signUpPage = new SignUpPage(driver, port);
+
 		signUpPage.signUpUser(DEFAULT_USER);
 
 		assertTrue(signUpPage.errorMessage().isDisplayed());
@@ -107,15 +114,23 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void failedLoginAlert() {
+	public void failedLoginAlertWrongPassword() {
 		TestUser user = new TestUser("user");
 		SignUpPage signUpPage = new SignUpPage(driver, port);
 		signUpPage.signUpUser(user);
-
 		LoginPage loginPage = new LoginPage(driver, port);
+
 		loginPage.loginUser(user.username(), "wrongpassword");
 
 		assertEquals("Invalid username or password", loginPage.errorMessage().getText());
+	}
+
+	@Test
+	public void failedLoginAlertWrongUsername() {
+		TestUser user = new TestUser("user");
+		SignUpPage signUpPage = new SignUpPage(driver, port);
+		signUpPage.signUpUser(user);
+		LoginPage loginPage = new LoginPage(driver, port);
 
 		loginPage.loginUser("flandersn", user.password());
 
@@ -124,23 +139,16 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void logoutRedirectsToLogin() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.logoutUser();
-
 		assertEquals(baseUrl + "/login", driver.getCurrentUrl());
 	}
 
 	@Test
 	public void createSingleNote() {
-		int existingNotes;
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
+		int existingNotes = homePage.getNoteEntryCount();
 
-		HomePage homePage = new HomePage(driver, port);
-		existingNotes = homePage.getNoteEntryCount();
 		homePage.createNewNote("First Note", "Interesting content");
 
 		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
@@ -150,11 +158,9 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void createMultipleNotes() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingNotes = homePage.getNoteEntryCount();
+
 		homePage.createNewNote("First Note", "Interesting content");
 		homePage.createNewNote("Second Note", "Also interesting content");
 
@@ -167,25 +173,19 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void createNoteAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.createNewNote("First Note", "Interesting content");
-
 		assertEquals("Note successfully created!", homePage.successMessage().getText());
 	}
 
 	@Test
 	public void editNote() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingNotes = homePage.getNoteEntryCount();
 		homePage.createNewNote("First Note", "Interesting content");
 
 		homePage.editNote(existingNotes, "Edited Note", "Edited content");
+
 		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
 		assertEquals("Edited Note", homePage.getNoteTitle(existingNotes));
 		assertEquals("Edited content", homePage.getNoteDescription(existingNotes));
@@ -193,9 +193,7 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void editNoteAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingNotes = homePage.getNoteEntryCount();
 		homePage.createNewNote("First Note", "Interesting content");
 
@@ -206,15 +204,13 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void deleteNote() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingNotes = homePage.getNoteEntryCount();
 		homePage.createNewNote("First Note", "Interesting content");
 		homePage.createNewNote("Second Note", "Also interesting content");
 
 		homePage.deleteNote(existingNotes);
+
 		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
 		assertEquals("Second Note", homePage.getNoteTitle(existingNotes));
 		assertEquals("Also interesting content", homePage.getNoteDescription(existingNotes));
@@ -222,12 +218,10 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void deleteNoteAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingNotes = homePage.getNoteEntryCount();
 		homePage.createNewNote("First Note", "Interesting content");
+
 		homePage.deleteNote(existingNotes);
 
 		assertEquals("Note successfully deleted!", homePage.successMessage().getText());
@@ -235,11 +229,9 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void createSingleCredential() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
+
 		homePage.createCredential("example.com", "root", "123456");
 
 		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
@@ -250,11 +242,9 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void createMultipleCredentials() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
+
 		homePage.createCredential("example.com", "root", "123456");
 		homePage.createCredential("duff.com", "duffman", "duffbeer");
 
@@ -269,22 +259,16 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void createCredentialAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.createCredential("example.com", "root", "123456");
-
 		assertEquals("Credential successfully created!", homePage.successMessage().getText());
 	}
 
 	@Test
 	public void samePasswordHasDifferentEncryptedViews() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
+
 		homePage.createCredential("example.com", "root", "123456");
 		homePage.createCredential("duff.com", "duffman", "123456");
 
@@ -293,11 +277,9 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void viewCredentialShowsPlainPassword() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
+
 		homePage.createCredential("example.com", "root", "123456");
 
 		homePage.editCredentialButton(existingCredentials).click();
@@ -306,29 +288,25 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void editCredential() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
 		homePage.createCredential("example.com", "root", "123456");
-		String encryptedPassword = homePage.getCredentialPassword(existingCredentials);
+		String oldEncryptedPassword = homePage.getCredentialPassword(existingCredentials);
 
 		homePage.editCredential(existingCredentials, "anotherurl.com", "normaluser", "security1o1");
+
 		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
 		assertEquals("anotherurl.com", homePage.getCredentialUrl(existingCredentials));
 		assertEquals("normaluser", homePage.getCredentialUsername(existingCredentials));
-		assertNotEquals(encryptedPassword, homePage.getCredentialPassword(existingCredentials));
+		assertNotEquals(oldEncryptedPassword, homePage.getCredentialPassword(existingCredentials));
 	}
 
 	@Test
 	public void editCredentialAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
 		homePage.createCredential("example.com", "root", "123456");
+
 		homePage.editCredential(existingCredentials, "anotherurl.com", "normaluser", "security1o1");
 
 		assertEquals("Credential successfully updated!", homePage.successMessage().getText());
@@ -336,15 +314,13 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void deleteCredential() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
 		homePage.createCredential("example.com", "root", "123456");
 		homePage.createCredential("duff.com", "duffman", "duffbeer");
 
 		homePage.deleteCredential(existingCredentials);
+
 		assertEquals(existingCredentials + 1, homePage.getCredentialEntryCount());
 		assertEquals("duff.com", homePage.getCredentialUrl(existingCredentials));
 		assertEquals("duffman", homePage.getCredentialUsername(existingCredentials));
@@ -353,11 +329,9 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void deleteCredentialAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		int existingCredentials = homePage.getCredentialEntryCount();
+
 		homePage.createCredential("example.com", "root", "123456");
 		homePage.deleteCredential(existingCredentials);
 
@@ -366,9 +340,7 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void uploadSingleFile() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.deleteAllFiles();
 
 		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
@@ -379,9 +351,7 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void uploadSameFileAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.deleteAllFiles();
 
 		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
@@ -393,9 +363,7 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void uploadMultipleFiles() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.deleteAllFiles();
 
 		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
@@ -408,13 +376,11 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void deleteFile() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.deleteAllFiles();
-
 		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
 		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
+
 		homePage.deleteFile(1);
 
 		assertEquals(1, homePage.getFileEntryCount());
@@ -423,13 +389,11 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void deleteFileAlert() {
-		LoginPage loginPage = new LoginPage(driver, port);
-		loginPage.loginUser(DEFAULT_USER);
-		HomePage homePage = new HomePage(driver, port);
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.deleteAllFiles();
-
 		homePage.uploadFile(DUMMY_FILE_0.getAbsolutePath());
 		homePage.uploadFile(DUMMY_FILE_1.getAbsolutePath());
+
 		homePage.deleteFile(1);
 
 		assertEquals("File successfully deleted!", homePage.successMessage().getText());
