@@ -50,10 +50,16 @@ public class HomeController {
         User user = userService.getUser(username);
 
         if (note.getNoteId() > 0) {
-            // note already exists in DB -> edit
-            noteService.updateNote(note, user);
+            int updatedRecords = noteService.updateNote(note, user);
+
+            if (updatedRecords <= 0) {
+                model.addAttribute("alertMessage", "Note update failed!");
+                model.addAttribute("alertError", true);
+            } else {
+                model.addAttribute("alertMessage", "Note successfully updated!");
+                model.addAttribute("alertSuccess", true);
+            }
         } else {
-            // note doesn't exist in DB -> create
             int noteId = noteService.createNote(note, user);
 
             if (noteId < 0) {
@@ -88,10 +94,16 @@ public class HomeController {
         User user = userService.getUser(username);
 
         if (credential.getCredentialId() > 0) {
-            // credential already exists in DB -> edit/view
-            credentialService.updateCredential(credential, user);
+            int updatedRecords = credentialService.updateCredential(credential, user);
+
+            if (updatedRecords <= 0) {
+                model.addAttribute("alertMessage", "Credential updated failed!");
+                model.addAttribute("alertError", true);
+            } else {
+                model.addAttribute("alertMessage", "Credential successfully updated!");
+                model.addAttribute("alertSuccess", true);
+            }
         } else {
-            // credential doesn't exist in Db -> create
             int credentialId = credentialService.createCredential(credential, user);
 
             if (credentialId < 0) {

@@ -81,6 +81,12 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	public void homePageNotAccessibleWithoutLogin() {
+		HomePage homePage = new HomePage(driver, port);
+		assertNotEquals(baseUrl + "/home", driver.getCurrentUrl());
+	}
+
+	@Test
 	public void signUpUserAlert() {
 		TestUser user = new TestUser("userone");
 		SignUpPage signUpPage = new SignUpPage(driver, port);
@@ -183,6 +189,19 @@ class CloudStorageApplicationTests {
 		assertEquals(existingNotes + 1, homePage.getNoteEntryCount());
 		assertEquals("Edited Note", homePage.getNoteTitle(existingNotes));
 		assertEquals("Edited content", homePage.getNoteDescription(existingNotes));
+	}
+
+	@Test
+	public void editNoteAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+		HomePage homePage = new HomePage(driver, port);
+		int existingNotes = homePage.getNoteEntryCount();
+		homePage.createNewNote("First Note", "Interesting content");
+
+		homePage.editNote(existingNotes, "Edited Note", "Edited content");
+
+		assertEquals("Note successfully updated!", homePage.successMessage().getText());
 	}
 
 	@Test
@@ -300,6 +319,19 @@ class CloudStorageApplicationTests {
 		assertEquals("anotherurl.com", homePage.getCredentialUrl(existingCredentials));
 		assertEquals("normaluser", homePage.getCredentialUsername(existingCredentials));
 		assertNotEquals(encryptedPassword, homePage.getCredentialPassword(existingCredentials));
+	}
+
+	@Test
+	public void editCredentialAlert() {
+		LoginPage loginPage = new LoginPage(driver, port);
+		loginPage.loginUser(DEFAULT_USER);
+
+		HomePage homePage = new HomePage(driver, port);
+		int existingCredentials = homePage.getCredentialEntryCount();
+		homePage.createCredential("example.com", "root", "123456");
+		homePage.editCredential(existingCredentials, "anotherurl.com", "normaluser", "security1o1");
+
+		assertEquals("Credential successfully updated!", homePage.successMessage().getText());
 	}
 
 	@Test

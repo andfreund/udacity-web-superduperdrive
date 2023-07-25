@@ -39,7 +39,7 @@ public class CredentialService {
         return credentialMapper.getCredentialsFor(userId);
     }
 
-    public void updateCredential(Credential credential, User user) {
+    public int updateCredential(Credential credential, User user) {
         SecureRandom random = new SecureRandom();
         byte[] key = new byte[16];
         random.nextBytes(key);
@@ -50,7 +50,7 @@ public class CredentialService {
         credential.setPassword(encryptedPassword);
         credential.setUserId(user.getUserId());
 
-        credentialMapper.updateCredential(credential);
+        return credentialMapper.updateCredential(credential);
     }
 
     public int deleteNote(int credentialId) {
