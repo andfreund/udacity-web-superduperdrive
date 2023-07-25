@@ -375,6 +375,16 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	public void uploadBlankFileAlert() {
+		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
+		homePage.deleteAllFiles();
+
+		homePage.uploadEmptyFile();
+
+		assertEquals("File is empty!", homePage.errorMessage().getText());
+	}
+
+	@Test
 	public void deleteFile() {
 		HomePage homePage = navigateToHomePageAs(DEFAULT_USER);
 		homePage.deleteAllFiles();

@@ -306,6 +306,14 @@ public class HomePage extends AbstractPage {
         uploadFileButton.click();
     }
 
+    public void uploadEmptyFile() {
+        filesTab.click();
+        wait.until(ExpectedConditions.visibilityOf(uploadFileButton));
+
+        uploadFileDialog.clear();
+        uploadFileButton.click();
+    }
+
     public String getFilename(int index) {
         filesTab.click();
         wait.until(ExpectedConditions.visibilityOf(uploadFileButton));
